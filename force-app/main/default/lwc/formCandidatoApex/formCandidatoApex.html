@@ -1,0 +1,48 @@
+<template>
+  <template if:false={thankyou}>
+ 
+    <div class="slds-form-element__control">
+      <label for="firstname" class="slds-form-element__label">First Name</label>
+      <div class="slds-form-element__control">
+      <input type="text" value={firstname} data-field="firstname" oninput={handleInputChange} class="slds-input"/></div>
+      
+      <label for="lastname" class="slds-form-element__label"><abbr class="slds-required" title="required">* </abbr>Last Name</label>
+      <div class="slds-form-element__control">
+      <input type="text" value={lastname} data-field="lastname" required oninput={handleInputChange} class="slds-input"/></div>
+      
+
+      <label for="company" class="slds-form-element__label">Company</label>
+      <div class="slds-form-element__control">
+      <input type="text" value={company} data-field="company" oninput={handleInputChange} class="slds-input"/></div>
+      
+
+      <label for="correo" class="slds-form-element__label">Email</label>
+      <div class="slds-form-element__control">
+      <input type="text" value={email} data-field="email" oninput={handleInputChange} class="slds-input"/></div>
+      
+
+      <div class="slds-form-element__control">
+      <lightning-combobox
+        if:true={noVieneAccount}
+        name="asesor"
+        label="Consultant"
+        value={valueCombobox}
+        placeholder="Select a consultant"
+        options={options}
+        onchange={handleChange}
+      >
+      </lightning-combobox></div>
+      <br>
+
+      <div class="slds-align_absolute-center">
+        <button class="slds-button slds-button_brand" onclick={addPartner} >Submit</button>
+      </div>
+    </div>
+
+  </template>
+  <template if:true={thankyou}>
+    <div class="slds-align_absolute-center">
+      <h1>Thank you!</h1>
+    </div>
+  </template>
+</template>

@@ -1,0 +1,101 @@
+<template>
+    <template if:true={canBarConfig}>
+        <lightning-card class="slds-size_1-of-2" title="Opportunity Stage Wise View">
+            <lightning-layout>
+                <lightning-layout-item size="12" data-item="inlineblock">
+    
+    
+                    <div>
+                        <div class="slds-grid slds-wrap">
+                            <div class="slds-col slds-size_1-of-3" style="border:1px solid #cacaca;" if:true={canBarConfig}>
+                                <c-lienzo-chart chart-dataset={canBarConfig}>
+                                </c-lienzo-chart>
+                                <div style="display: flex;  justify-content: center;"> <lightning-button 
+                                  variant="base"
+                                  label="Ver reporte" 
+                                  onclick={handleClickReporte}
+                                ></lightning-button> </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3" style="border:1px solid #cacaca;" if:true={oppPieconfig}>
+                                <c-lienzo-chart chart-dataset={oppPieconfig}>
+                                </c-lienzo-chart>
+                                <div style="display: flex;  justify-content: center;">Pie Chart</div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3" style="border:1px solid #cacaca;" if:true={oppDoughnutConfig}>
+    
+    
+                                <c-lienzo-chart chart-dataset={oppDoughnutConfig}>
+                                </c-lienzo-chart>
+                                <div style="display: flex;  justify-content: center;">Doughnut Chart
+                                    </div>
+    
+    
+                            </div>
+                            <div class="slds-col slds-size_1-of-3" style="border:1px solid #cacaca;" if:true={oppPolarAreaConfig}>
+    
+    
+                                <c-lienzo-chart chart-dataset={oppPolarAreaConfig}>
+                                </c-lienzo-chart>
+                                <div style="display: flex;  justify-content: center;">Polar Area Chart
+                                    </div>
+    
+    
+                            </div>
+                             <div class="slds-col slds-size_1-of-3" style="border:1px solid #cacaca;" if:true={oppBubbleConfig}>
+    
+    
+                                <c-lienzo-chart chart-dataset={oppBubbleConfig}>
+                                </c-lienzo-chart>
+                                <div style="display: flex;  justify-content: center;">Bubble Chart
+                                    </div>
+    
+    
+                            </div>
+                             <div class="slds-col slds-size_1-of-3" style="border:1px solid #cacaca;" if:true={oppLineConfig}>
+    
+    
+                                <c-lienzo-chart chart-dataset={oppLineConfig}>
+                                </c-lienzo-chart>
+                                <div style="display: flex;  justify-content: center;">Line Chart
+                                    </div>
+    
+    
+                            </div>
+                            
+                        </div>
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+        </lightning-card>
+    </template>
+    <div style="height: 300px;">
+        <iframe src={reportUrl} width="100%" height="500px" frameborder="0" >
+            <h2>titulo</h2>
+            <script>
+                
+            </script>
+        </iframe>
+        <!-- <lightning-datatable
+                key-field="id"
+                data={dataColumns}
+                columns={columns}>
+        </lightning-datatable> -->
+    </div>
+        <!-- <lightning-card icon-name="standard:report" variant="base">
+          <div slot="title">
+              Reporte
+          </div>
+          <div>
+           
+             <lightning-record-view-form
+              density="auto"
+              object-api-name='Report'
+              record-id={reporteId}
+            >
+            <lightning-output-field field-name='DeveloperName'> </lightning-output-field>
+            </lightning-record-view-form>
+          </div>
+        </lightning-card> -->
+    
+    
+</template>

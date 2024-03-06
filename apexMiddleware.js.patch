@@ -1,0 +1,44 @@
+--- apexMiddleware.original.js	2023-10-19 15:51:03
++++ apexMiddleware.js	2023-10-20 08:52:14
+@@ -35,9 +35,15 @@
+       return this.orgRequest
+         .get({
+           url: `${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`,
++          // Include headers so we can set cookies.
++          resolveWithFullResponse: true,
+         })
+         .then((res) => {
+-          return Buffer.from(res);
++          // Inject cookies into JSDOM cookie jar.
++          res.headers["set-cookie"]?.map(jsdom_1.toughCookie.parse).map((c) => {
++            this.cookieJar.setCookieSync(c, url);
++          });
++          return Buffer.from(res.body);
+         });
+     }
+     log(`skipped external url: ${url}`);
+@@ -189,6 +195,8 @@
+   if (response.indexOf("window.location.replace(") != -1) {
+     throw new Error("error retrieving aura config: unauthenticated");
+   }
++  // Create a cookie jar.
++  const cookieJar = new jsdom_1.CookieJar();
+   const resourceLoader = new ApexResourceLoader(
+     orgRequest,
+     connectionParams.instanceUrl
+@@ -197,7 +205,14 @@
+     let config = null;
+     const Aura = {};
+     const oneApp = new jsdom_1.JSDOM(response, {
+-      resources: resourceLoader,
++      // Hack to include a reference to the cookie jar when fetching resources
++      // which needs to set cookies.
++      resources: (() => {
++        resourceLoader.cookieJar = cookieJar;
++        return resourceLoader;
++      })(),
++      // Set shared cookie jar.
++      cookieJar: cookieJar,
+       runScripts: "dangerously",
+       url: connectionParams.instanceUrl + ONE_APP_URL,
+       referrer: connectionParams.instanceUrl + ONE_APP_URL,

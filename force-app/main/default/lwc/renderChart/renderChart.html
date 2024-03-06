@@ -1,0 +1,11 @@
+<template>
+    
+    <lightning-card title="Lista de Registros">
+      <lightning-datatable
+        key-field="Id"
+        data={reportes}
+        columns={columns}
+        onrowaction={handleRowAction}
+      ></lightning-datatable>
+    </lightning-card>
+  </template>

@@ -1,0 +1,44 @@
+<template>
+    <lightning-card title="Cálculo de Crédito">
+        <div class="slds-m-around_medium">
+            <lightning-input type="number" label="Monto deseado" value={montoDeseado} onchange={handleMontoChange}></lightning-input>
+            <lightning-input type="number" label="Plazo (meses)" value={plazo} onchange={handlePlazoChange}></lightning-input>
+        </div>
+        <div class="slds-m-top_medium slds-align_absolute-center">
+            <lightning-button label="Simular" onclick={calcularOpciones}></lightning-button>
+        </div>
+        <div class="slds-m-around_medium">
+            <template if:true={showOptions}>
+                <div class="slds-m-bottom_medium slds-align_absolute-center">
+                    <h3>Opciones de Crédito</h3>
+                </div>
+                <lightning-layout multiple-rows>
+                    <lightning-layout-item size="4" padding="around-small">
+                        <div class="slds-box slds-box_x-small slds-text-align_center slds-m-around_x-small">
+                            <strong> <h1>{opcion1.montoMensual}</h1>$</strong>
+                            <p>Opcion 1</p>
+                            <hr>
+                            <strong><p>Tasa variable + Cuota variable</p></strong>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="4" padding="around-small">
+                        <div class="slds-box slds-box_x-small slds-text-align_center slds-m-around_x-small">
+                           <strong> <h1>{opcion2.montoMensual}</h1>$</strong>
+                            <p>Opcion 2</p>
+                            <hr>
+                            <strong><p>Sin tasa variable</p></strong>
+                        </div>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="4" padding="around-small">
+                        <div class="slds-box slds-box_x-small slds-text-align_center slds-m-around_x-small">
+                            <strong><h1>{opcion3.montoMensual}</h1>$</strong>
+                            <p>Opcion 3</p>
+                            <hr>
+                            <strong><p>Con tasa variable</p></strong>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </template>
+        </div>
+    </lightning-card>
+</template>
