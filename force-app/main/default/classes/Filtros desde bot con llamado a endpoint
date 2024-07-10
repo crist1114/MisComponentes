@@ -1,0 +1,129 @@
+global class FiltroRequest {
+    
+    static Map<String, String> propiedades = new Map<String, String>{
+        'Anillos de compromiso' => 'mat',
+        'Argollas de matrimonio' => 'mat',
+        'Aretes' => 'are',
+        'Dijes' => 'dij',
+        'Anillos' => 'ani',
+        'Cadenas' => 'cad',
+        'Pulseras' => 'pul',
+        'Collares' => 'col',
+        'Relojes' => 'rel'
+    };
+
+    global class RequestParams {
+        @InvocableVariable(required=true)
+        public String catalogo;
+        @InvocableVariable(required=false)
+        public String diseno;
+        @InvocableVariable(required=false)
+        public String metal;
+        @InvocableVariable(required=false)
+        public String genero;
+        @InvocableVariable(required=false)
+        public String marca;
+        @InvocableVariable(required=false)
+        public String piedra;
+    }
+
+    global class ResponseWrapper {
+        @InvocableVariable
+        public String response;
+    }
+
+    @InvocableMethod(label='Obtener url' description='recibe filtros y retorna una url')
+    public static List<ResponseWrapper> sendPostRequest(List<RequestParams> requestParamsList) {
+        
+        List<ResponseWrapper> results = new List<ResponseWrapper>();
+         if (requestParamsList.isEmpty()) {
+            ResponseWrapper result = new ResponseWrapper();
+            result.response = 'Error: No se proporcionaron parámetros de solicitud';
+            results.add(result);
+            return results;
+        }
+		RequestParams requestParams = requestParamsList[0];
+        ResponseWrapper result = new ResponseWrapper();
+        
+            try {
+                HttpRequest req = new HttpRequest();
+                req.setMethod('POST');
+                req.setEndpoint('https://qa.apiplaxd.orafa.com.co/web/obtener-url');
+                req.setHeader('Content-Type', 'application/json');
+
+                Map<String, Object> jsonMap = new Map<String, Object>();
+                List<Map<String, Object>> filtrosAplicados = new List<Map<String, Object>>();
+                String catalogoValor = propiedades.get(requestParams.catalogo);
+                if (catalogoValor == null) {
+                    result.response = 'Error: El catálogo no es válido';
+                    results.add(result);
+                }
+                List<String> opcionesDeFiltro = new List<String>{catalogoValor+'Cat', catalogoValor+'Est', catalogoValor+'Met', catalogoValor+'Gén', catalogoValor+'Mar', catalogoValor+'Arg', catalogoValor+'For', catalogoValor+'Pie', catalogoValor+'Col'};
+                List<String> selecciones = new List<String>{ requestParams.genero, requestParams.metal, requestParams.diseno, requestParams.marca, requestParams.piedra, requestParams.catalogo};
+                
+                // Consulto para obtener todos los filtros que coinciden con las selecciones desde el bot
+                List<Filtro__mdt> allFiltros = [
+                    SELECT Catalogo__c, idFiltroAplicable__c, Nombre_Bot__c, Nombre_catalogo_bot__c, NombreWeb__c, Propiedad__c 
+                    FROM Filtro__mdt 
+                    WHERE Nombre_Bot__c IN :selecciones
+                ];
+                List<Filtro__mdt> filtros = new List<Filtro__mdt>();
+                System.debug(allFiltros);
+                // Filtro los resultados de la consulta según las opciones de filtro matMet...
+                for (Filtro__mdt filtro : allFiltros) {
+                    if (opcionesDeFiltro.contains(filtro.Propiedad__c)) {
+                        filtros.add(filtro);
+                    }
+                }
+                
+				List<Map<String, Object>> filtrosData = new List<Map<String, Object>>(); //guardo cada nodo del json que voy a enviar
+                
+                for (Filtro__mdt filtro : filtros) {
+                    filtrosData.add(new Map<String, Object>{'Propiedad' => filtro.Propiedad__c, 'idFiltroAplicable' => filtro.idFiltroAplicable__c, 'nombreWeb' => filtro.NombreWeb__c});
+                }
+                
+                for (Map<String, Object> filtroData : filtrosData) {
+                    	//agrego cada par propiedad + filtro
+                        Map<String, Object> filtro = new Map<String, Object>();
+                        filtro.put('Propiedad', filtroData.get('Propiedad'));
+
+                        filtro.put('Filtros', new List<Map<String, Object>>{
+                            new Map<String, Object>{'idFiltroAplicable' => filtroData.get('idFiltroAplicable'), 'nombreWeb' => filtroData.get('nombreWeb')}
+                        });
+                        filtrosAplicados.add(filtro);
+                    
+                }
+				
+                jsonMap.put('filtrosAplicados', filtrosAplicados);
+                jsonMap.put('catalogo', filtros[0].Catalogo__c);
+
+                String jsonBody = JSON.serialize(jsonMap);
+
+                req.setBody(jsonBody);
+
+                Http http = new Http();
+                HttpResponse res = http.send(req);
+
+                if (res.getStatusCode() == 200) {
+
+                    Map<String, Object> resMap = (Map<String, Object>) JSON.deserializeUntyped(res.getBody());
+                    if (resMap.containsKey('url')) {
+                   
+                        String url = (String) resMap.get('url');
+                        result.response = url.replaceAll(' ', '%20');
+                    } else {
+                        result.response = 'Error: La respuesta no contiene la clave "url".';
+                    }
+                } else {
+               
+                    result.response = 'Error: ' + res.getStatusCode() + ' ' + res.getStatus();
+                }
+            } catch (Exception e) {
+             
+                result.response = 'Exception: ' + e.getMessage();
+            }
+            results.add(result);
+        
+        return results;
+    }
+}
